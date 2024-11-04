@@ -30,8 +30,7 @@ jobs:
     - name: Ensure data directory exists
       run: |
         if (!(Test-Path "data")) {
-          echo "Data directory not found!"
-          exit 1
+          New-Item -ItemType Directory -Path "data"
         }
 
     - name: Build executable
