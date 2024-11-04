@@ -52,12 +52,15 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Set upload URL
+      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+
     - name: Upload Windows Release Asset to GitHub Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ env.UPLOAD_URL }}
         asset_path: dist/readerspeeder.exe  # Ensure the path matches the target name
         asset_name: readerspeeder-windows.exe
         asset_content_type: application/octet-stream
