@@ -44,7 +44,7 @@ An offline speed reader application with local TTS and a comfortable UI.
 
 ## Usage
 
-### From Releases
+### Windows Release
 
 1. Download and run the executable from the [Releases](https://github.com/yourusername/ReaderSpeeder/releases) page.
 2. Use the graphical interface to load a text file, adjust the WPM setting, and start speed reading.
