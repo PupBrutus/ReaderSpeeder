@@ -46,7 +46,10 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         body: |
-          Download the compiled application for your operating system from the assets below. If you prefer to run from source, follow the instructions in the README.
+          Download the compiled application for Windows from the assets below. If you prefer to run from source, follow the instructions in the README.
+
+          **Changes in this release:**
+          ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
 
