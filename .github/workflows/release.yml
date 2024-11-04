@@ -28,7 +28,7 @@ jobs:
       run: pyinstaller --onefile main.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: readerspeeder-executable-windows
         path: dist/main.exe
@@ -55,7 +55,7 @@ jobs:
       run: pyinstaller --onefile main.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: readerspeeder-executable-macos
         path: dist/main
@@ -82,7 +82,7 @@ jobs:
       run: pyinstaller --onefile main.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: readerspeeder-executable-linux
         path: dist/main
