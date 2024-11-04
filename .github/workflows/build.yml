@@ -32,10 +32,10 @@ jobs:
 
     - name: Verify executable
       run: |
-        if [ ! -f "dist/readerspeeder.exe" ]; then
+        if (!(Test-Path "dist/readerspeeder.exe")) {
           echo "Executable not found!"
           exit 1
-        fi
+        }
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
