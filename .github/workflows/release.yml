@@ -41,22 +41,19 @@ jobs:
       id: create_release
       uses: actions/create-release@v1.1.0
       env:
-        GITHUB_TOKEN: ${{ secrets.PAT }}  # Use the PAT instead of the default GITHUB_TOKEN
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         body: |
           Download the compiled application for Windows from the assets below. If you prefer to run from source, follow the instructions in the README.
-
-          **Changes in this release:**
-          ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
 
     - name: Upload Windows Release Asset
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.PAT }}  # Use the PAT instead of the default GITHUB_TOKEN
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: dist/readerspeeder.exe  # Ensure the path matches the target name
