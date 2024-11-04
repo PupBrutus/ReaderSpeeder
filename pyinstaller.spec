@@ -6,7 +6,7 @@ a = Analysis(
     ['main.py'],
     pathex=['.'],  # Ensure the current directory is included
     binaries=[],
-    datas=[('data/', 'data/')],  # Include necessary data files
+    datas=[('data/*', 'data')],  # Correct the data files path
     hiddenimports=['pyttsx3', 'tkinter', 'simpleaudio'],
     hookspath=[],
     runtime_hooks=[],
