@@ -30,7 +30,7 @@ An offline speed reader application with local TTS and a comfortable UI.
 ### From Releases
 
 1. Go to the [Releases](https://github.com/yourusername/ReaderSpeeder/releases) page.
-2. Download the latest package for your operating system (Windows, macOS, or Linux).
+2. Download the latest package for Windows.
 3. Run the downloaded executable to start the application.
 
 ### From Source
