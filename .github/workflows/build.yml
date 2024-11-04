@@ -3,12 +3,10 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*'
-
-permissions: write-all
+      - 'v*.*.*'
 
 jobs:
-  build-and-release:
+  build:
     runs-on: windows-latest
 
     steps:
@@ -18,8 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
-        architecture: 'x64'
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
@@ -27,53 +24,42 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
-    - name: Ensure data directory exists
-      run: |
-        if (!(Test-Path "data")) {
-          New-Item -ItemType Directory -Path "data"
-        }
-
     - name: Build executable
-      run: pyinstaller pyinstaller.spec
-
-    - name: Verify executable
-      run: |
-        if (!(Test-Path "dist/readerspeeder.exe")) {
-          echo "Executable not found!"
-          exit 1
-        }
+      run: pyinstaller --onefile main.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
-        name: readerspeeder-executable-windows
-        path: dist/readerspeeder.exe  # Ensure the path matches the target name
+        name: executable
+        path: dist/main.exe
 
-    - name: Create GitHub Release
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: executable
+        path: .
+
+    - name: Create Release
       id: create_release
-      uses: actions/create-release@v1.1.0
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
-        body: |
-          Download the compiled application for Windows from the assets below. If you prefer to run from source, follow the instructions in the README.
-
-          **Changes in this release:**
-          ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
 
-    - name: Set upload URL
-      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
-
-    - name: Upload Windows Release Asset to GitHub Release
+    - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ env.UPLOAD_URL }}
-        asset_path: dist/readerspeeder.exe  # Ensure the path matches the target name
-        asset_name: readerspeeder-windows.exe
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/main.exe
+        asset_name: readerspeeder.exe
         asset_content_type: application/octet-stream
