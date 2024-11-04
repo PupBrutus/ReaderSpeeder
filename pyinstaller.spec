@@ -4,9 +4,9 @@ block_cipher = None
 
 a = Analysis(
     ['main.py'],
-    pathex=[],
+    pathex=['.'],  # Ensure the current directory is included
     binaries=[],
-    datas=[],
+    datas=[('data/', 'data/')],  # Include necessary data files
     hiddenimports=['pyttsx3', 'tkinter', 'simpleaudio'],
     hookspath=[],
     runtime_hooks=[],
