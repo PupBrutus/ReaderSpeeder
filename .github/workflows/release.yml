@@ -7,7 +7,6 @@ on:
 
 permissions: write-all
 
-
 jobs:
   build-and-release:
     runs-on: windows-latest
