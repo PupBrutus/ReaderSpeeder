@@ -29,6 +29,7 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=True,
+    target_name='readerspeeder.exe',  # Ensure the executable is named correctly
 )
 coll = COLLECT(
     exe,
