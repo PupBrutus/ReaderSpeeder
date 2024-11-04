@@ -27,6 +27,14 @@ An offline speed reader application with local TTS and a comfortable UI.
 
 ## Installation
 
+### From Releases
+
+1. Go to the [Releases](https://github.com/yourusername/ReaderSpeeder/releases) page.
+2. Download the latest package for your operating system (Windows, macOS, or Linux).
+3. Run the downloaded executable to start the application.
+
+### From Source
+
 1. Clone the repository or download the source code.
 2. Install the required dependencies using `pip`:
 
@@ -35,6 +43,13 @@ An offline speed reader application with local TTS and a comfortable UI.
     ```
 
 ## Usage
+
+### From Releases
+
+1. Download and run the executable from the [Releases](https://github.com/yourusername/ReaderSpeeder/releases) page.
+2. Use the graphical interface to load a text file, adjust the WPM setting, and start speed reading.
+
+### From Source
 
 1. Run the `main.py` script:
 
