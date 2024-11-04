@@ -27,6 +27,13 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
+    - name: Ensure data directory exists
+      run: |
+        if (!(Test-Path "data")) {
+          echo "Data directory not found!"
+          exit 1
+        }
+
     - name: Build executable
       run: pyinstaller pyinstaller.spec
 
