@@ -7,7 +7,16 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[('default.txt', '.')],  # Include default.txt
-    hiddenimports=['pyttsx3', 'simpleaudio'],
+    hiddenimports=[
+        'pyttsx3', 
+        'simpleaudio',
+        'tkinter',
+        'numpy',
+        'psutil',
+        'setuptools',
+        'wheel',
+        'metadata'
+    ],  # Ensure all hidden imports are listed
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
