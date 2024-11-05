@@ -78,6 +78,8 @@ class SpeedReader:
         # Automatically load default.txt for debugging purposes
         #self.load_file("default.txt", show_confirmation=False)
         self.reading_window.protocol("WM_DELETE_WINDOW", self.on_closing_reading_window)  # Handle reading window close event
+        self.next_chunk_ready_event = threading.Event()  # Add event to signal next chunk is ready
+        self.processed_chunks = set()  # Add a set to keep track of processed chunks
         
     def setup_ui(self):
         self.settings_frame = tk.Frame(self.root)
@@ -248,29 +250,37 @@ class SpeedReader:
         
         self.reading_thread = threading.Thread(target=self.speed_reading)
         self.reading_thread.start()
-        self.prepare_next_chunk()  # Prepare the next chunk
+        self.next_chunk_thread = threading.Thread(target=self.preprocess_next_chunk)  # Start the next chunk preparation thread
+        self.next_chunk_thread.start()
 
     def preprocess_chunks(self):
         self.preprocessed_chunks = []
         for chunk in self.chunks:
             if chunk.strip():
                 logging.info("Preprocessing chunk: %s", chunk)
-                self.prepare_chunk(chunk)
+                self.display_first_word_of_chunk(chunk)
                 self.preprocessed_chunks.append(chunk)
         logging.info("Preprocessing complete. Total chunks: %d", len(self.preprocessed_chunks))
         
-    def prepare_next_chunk(self):
-        if self.current_chunk_index + 1 < len(self.chunks):
-            next_chunk = self.chunks[self.current_chunk_index + 1]
-            if next_chunk.strip():
-                logging.info("Preparing next chunk: %s", next_chunk)
-                self.prepare_chunk(next_chunk)
-                self.preprocessed_chunks.append(next_chunk)
-                self.first_chunk_prepared = True
+    def preprocess_next_chunk(self):
+        while not self.is_stopped:
+            next_chunk_index = self.current_chunk_index + 1
+            if next_chunk_index < len(self.chunks) and next_chunk_index not in self.processed_chunks:
+                if not self.next_chunk_ready_event.is_set():  # Check if the event is cleared before processing the next chunk
+                    next_chunk = self.chunks[next_chunk_index]
+                    if next_chunk.strip():
+                        logging.info("Preparing next chunk: %s", next_chunk)
+                        self.display_first_word_of_chunk(next_chunk)
+                        self.preprocessed_chunks.append(next_chunk)
+                        self.processed_chunks.add(next_chunk_index)  # Mark this chunk as processed
+                        self.first_chunk_prepared = True
+                        self.next_chunk_ready_event.set()  # Signal that the next chunk is ready
+            time.sleep(0.1)  # Sleep briefly to avoid busy-waiting
         
     def speed_reading(self):
         while self.current_chunk_index < len(self.preprocessed_chunks) and not self.is_stopped:
             if self.shutdown_event.is_set():  # Check for shutdown event
+                logging.info("Shutdown event set. Exiting speed reading loop.")
                 break
             if not self.is_paused:
                 self.current_chunk = self.preprocessed_chunks[self.current_chunk_index]
@@ -287,6 +297,7 @@ class SpeedReader:
                     
                     for word in words:
                         if self.is_paused or self.is_stopped:
+                            logging.info("Paused or stopped. Breaking word loop.")
                             break
                         self.display_word(word)
                         self.progress.set((self.current_chunk_index / len(self.preprocessed_chunks)) * 100)
@@ -305,17 +316,19 @@ class SpeedReader:
                     # Add pause based on newline
                     if '\n' in chunk:
                         time.sleep(2.5 * (60 / self.wpm))  # Pause for 2.5 words' worth of time
-                    
+                
                 self.current_chunk_index += 1
                 self.current_chunk = None  # Reset the current chunk
-                self.prepare_next_chunk()  # Prepare the next chunk
+                self.next_chunk_ready_event.clear()  # Clear the event before waiting for the next chunk
+                self.next_chunk_ready_event.wait()  # Wait for the next chunk to be ready
             else:
                 time.sleep(0.1)
         
         if self.current_chunk_index >= len(self.preprocessed_chunks):
+            logging.info("All chunks processed. Stopping.")
             self.stop()
-        
-    def prepare_chunk(self, chunk):
+
+    def display_first_word_of_chunk(self, chunk):
         # Ensure the text is loaded and ready to be displayed visually
         if chunk.split() and self.word_label.winfo_exists():  # Ensure chunk is not empty and word_label exists
             logging.info("Displaying first word of chunk: %s", chunk.split()[0])
@@ -341,21 +354,26 @@ class SpeedReader:
     def play_tts_audio(self, chunk):
         with self.tts_playback_lock:
             try:
+                logging.info("Generating TTS audio for chunk: %s", chunk)
                 audio_file = self.generate_tts_audio(chunk)
                 if (audio_file and os.path.exists(audio_file)):
+                    logging.info("Playing TTS audio file: %s", audio_file)
                     wave_obj = sa.WaveObject.from_wave_file(audio_file)
                     play_obj = wave_obj.play()
                     self.tts_playback_event.set()
                     while play_obj.is_playing():
                         if self.tts_stop_event.is_set() or self.shutdown_event.is_set():  # Check for shutdown event
+                            logging.info("Stopping TTS playback due to stop or shutdown event.")
                             play_obj.stop()
                             break
                         if self.is_paused:
+                            logging.info("Pausing TTS playback.")
                             play_obj.stop()
                             break
                         time.sleep(0.1)
                     self.tts_playback_event.clear()
                     self.tts_complete_event.set()  # Signal that TTS playback is complete
+                    logging.info("TTS playback completed. Removing audio file: %s", audio_file)
                     os.remove(audio_file)  # Clean up the temp_chunk audio file
                 else:
                     logging.error("Generated file %s does not exist.", audio_file)
@@ -475,6 +493,18 @@ class SpeedReader:
         if self.tts_enabled and self.tts_engine:
             self.tts_engine.stop()  # Stop the TTS engine
         self.tts_complete_event.set()  # Ensure the TTS completion event is set
+        
+        # Ensure all threads are properly terminated
+        if self.reading_thread and self.reading_thread.is_alive():
+            self.reading_thread.join(timeout=1)
+        if self.next_chunk_thread and self.next_chunk_thread.is_alive():
+            self.next_chunk_thread.join(timeout=1)
+        
+        # Forcefully exit if threads do not terminate gracefully
+        if (self.reading_thread and self.reading_thread.is_alive()) or (self.next_chunk_thread and self.next_chunk_thread.is_alive()):
+            logging.warning("Threads did not terminate gracefully. Forcefully exiting.")
+            os._exit(1)
+        
         self.save_settings()  # Save settings when the window is closed
         self.root.destroy()
 
