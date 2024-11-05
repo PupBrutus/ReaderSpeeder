@@ -243,6 +243,7 @@ class SpeedReader:
         self.root.withdraw()  # Hide the main settings window
         self.progress.set(0)
         
+        logging.info("Starting speed reading with %d chunks.", len(self.chunks))
         self.preprocess_chunks()  # Preprocess all chunks before starting
         
         self.reading_thread = threading.Thread(target=self.speed_reading)
@@ -253,6 +254,7 @@ class SpeedReader:
         self.preprocessed_chunks = []
         for chunk in self.chunks:
             if chunk.strip():
+                logging.info("Preprocessing chunk: %s", chunk)
                 self.prepare_chunk(chunk)
                 self.preprocessed_chunks.append(chunk)
         logging.info("Preprocessing complete. Total chunks: %d", len(self.preprocessed_chunks))
@@ -261,6 +263,7 @@ class SpeedReader:
         if self.current_chunk_index + 1 < len(self.chunks):
             next_chunk = self.chunks[self.current_chunk_index + 1]
             if next_chunk.strip():
+                logging.info("Preparing next chunk: %s", next_chunk)
                 self.prepare_chunk(next_chunk)
                 self.preprocessed_chunks.append(next_chunk)
                 self.first_chunk_prepared = True
@@ -315,6 +318,7 @@ class SpeedReader:
     def prepare_chunk(self, chunk):
         # Ensure the text is loaded and ready to be displayed visually
         if chunk.split() and self.word_label.winfo_exists():  # Ensure chunk is not empty and word_label exists
+            logging.info("Displaying first word of chunk: %s", chunk.split()[0])
             self.display_word(chunk.split()[0])
         
     def generate_tts_audio(self, chunk):
@@ -405,21 +409,34 @@ class SpeedReader:
     def change_opacity(self):
         self.reading_window.attributes('-alpha', float(self.opacity_var.get()))
         
-    def save_settings(self):
-        settings = {
-            "wpm": self.wpm_entry.get(),
-            "highlight_color": self.color_entry.get(),
-            "tts_enabled": self.tts_var.get(),
-            "night_mode": self.night_mode_var.get(),
-            "opacity": self.opacity_var.get(),
-            "tts_engine": self.tts_engine_var.get(),
-            "font_size": self.font_size_var.get()
-        }
-        with open("settings.json", "w", encoding="utf-8") as settings_file:
-            json.dump(settings, settings_file)
-        logging.info("Settings saved.")
+    def save_settings(self, settings=None):
+        if settings is None:
+            settings = {
+                "wpm": self.wpm_entry.get(),
+                "highlight_color": self.color_entry.get(),
+                "tts_enabled": self.tts_var.get(),
+                "night_mode": self.night_mode_var.get(),
+                "opacity": self.opacity_var.get(),
+                "tts_engine": self.tts_engine_var.get(),
+                "font_size": self.font_size_var.get()
+            }
+        try:
+            with open("settings.json", "w", encoding="utf-8") as settings_file:
+                json.dump(settings, settings_file)
+            logging.info("Settings saved.")
+        except IOError as e:
+            logging.error("Failed to save settings: %s", e)
 
     def load_settings(self):
+        default_settings = {
+            "wpm": "500",
+            "highlight_color": "#42a832",
+            "tts_enabled": 1,
+            "night_mode": 1,
+            "opacity": 1.0,
+            "tts_engine": "sapi5",
+            "font_size": 48
+        }
         try:
             with open("settings.json", "r", encoding="utf-8") as settings_file:
                 settings = json.load(settings_file)
@@ -438,7 +455,8 @@ class SpeedReader:
                 self.change_font_size(self.font_size_var.get())  # Apply font size settings
             logging.info("Settings loaded.")
         except FileNotFoundError:
-            logging.warning("Settings file not found. Using default settings.")
+            logging.warning("Settings file not found. Creating default settings file.")
+            self.save_settings(default_settings)  # Create settings.json with default settings
         except (json.JSONDecodeError, IOError) as e:
             logging.error("Failed to load settings: %s", e)
 
