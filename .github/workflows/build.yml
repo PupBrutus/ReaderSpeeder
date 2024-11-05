@@ -31,14 +31,14 @@ jobs:
     - name: Build executable
       run: pyinstaller pyinstaller.spec
 
-    - name: List files
-      run: Get-ChildItem -Recurse dist
+    - name: Zip dist/main folder
+      run: powershell Compress-Archive -Path dist/main -DestinationPath dist/main.zip
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: executable
-        path: dist/main/main.exe
+        path: dist/main.zip
 
   release:
     needs: build
@@ -67,6 +67,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/main.exe
-        asset_name: readerspeeder.exe
-        asset_content_type: application/octet-stream
+        asset_path: ./dist/main.zip
+        asset_name: readerspeeder.zip
+        asset_content_type: application/zip
