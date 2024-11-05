@@ -35,7 +35,7 @@ jobs:
         pip install pyinstaller
 
     - name: Build executable
-      run: pyinstaller pyinstaller.spec
+      run: pyinstaller readerspeeder.spec
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
