@@ -359,8 +359,10 @@ class SpeedReader:
                     os.remove(audio_file)  # Clean up the temp_chunk audio file
                 else:
                     logging.error("Generated file %s does not exist.", audio_file)
+                    self.tts_complete_event.set()  # Ensure the event is set even if the file does not exist
             except (sa.SimpleaudioError, OSError) as e:
                 logging.error("An error occurred during TTS playback: %s", e)
+                self.tts_complete_event.set()  # Ensure the event is set in case of an error
         
     def check_completion(self):
         # Ensure both the visual and audio components have completed
