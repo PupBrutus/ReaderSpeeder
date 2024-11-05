@@ -35,7 +35,7 @@ jobs:
         pip install pyinstaller
 
     - name: Build executable
-      run: pyinstaller readerspeeder.spec
+      run: pyinstaller readerspeeder_debug.spec  # Use the debug spec file
 
     - name: Zip the build directory
       run: powershell Compress-Archive -Path dist/ReaderSpeeder -DestinationPath dist/ReaderSpeeder.zip

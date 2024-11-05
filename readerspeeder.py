@@ -12,6 +12,17 @@ import tkinter.ttk as ttk  # Add ttk import
 import queue  # Add queue import
 import sys  # Add sys import
 
+# Check if running in debug mode
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    # Running in a PyInstaller bundle
+    debug_mode = 'debug' in sys.argv
+else:
+    # Running in a normal Python environment
+    debug_mode = True
+
+# Set logging level based on debug mode
+logging.basicConfig(level=logging.INFO if debug_mode else logging.WARNING)
+
 class SpeedReader:
     def __init__(self, master):
         self.root = master
