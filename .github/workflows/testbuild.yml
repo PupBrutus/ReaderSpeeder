@@ -3,7 +3,7 @@ name: TestBuild
 on:
   push:
     tags:
-      - 'TestBuild'
+      - 'TestBuildv*.*.*'
 
 permissions:
   contents: write
