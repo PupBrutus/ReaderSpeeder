@@ -32,7 +32,7 @@ jobs:
       run: pyinstaller pyinstaller.spec
 
     - name: List files
-      run: dir /s dist
+      run: Get-ChildItem -Recurse dist
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
