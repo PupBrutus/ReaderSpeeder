@@ -10,6 +10,7 @@ import re  # Add regex import
 import json  # Add JSON import
 import tkinter.ttk as ttk  # Add ttk import
 import queue  # Add queue import
+import sys  # Add sys import
 
 class SpeedReader:
     def __init__(self, master):
@@ -60,6 +61,8 @@ class SpeedReader:
         
         self.preprocessed_chunks = []  # Add a list to hold preprocessed chunks
         self.tts_audio_files = []  # Remove the list to hold TTS audio file paths
+        
+        self.temp_dir = self.resource_path("")  # Use application directory for temp files
         
         # Automatically load default.txt for debugging purposes
         #self.load_file("default.txt", show_confirmation=False)
@@ -308,7 +311,7 @@ class SpeedReader:
             logging.error("TTS engine is not initialized.")
             return None
         try:
-            output_file = f"temp_chunk_{self.current_chunk_index}.wav"
+            output_file = os.path.join(self.temp_dir, f"temp_chunk_{self.current_chunk_index}.wav")
             self.tts_engine.save_to_file(chunk, output_file)
             self.tts_engine.runAndWait()
             if os.path.exists(output_file):
@@ -482,6 +485,15 @@ class SpeedReader:
 
     def change_font_size(self, value):
         self.word_label.config(font=("Helvetica", int(value)))
+
+    def resource_path(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
 
 if __name__ == "__main__":
     root = tk.Tk()

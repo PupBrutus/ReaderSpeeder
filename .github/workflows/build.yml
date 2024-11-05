@@ -64,6 +64,8 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
+        body: |
+          $(awk '/## Installation/{flag=1;next}/##/{flag=0}flag' README.md)
         draft: false
         prerelease: false
 
