@@ -27,19 +27,26 @@ An offline speed reader application with local TTS and a comfortable UI.
 
 ## Installation
 
-### From Releases
+### From Releases (Windows)
 
 1. Go to the [Releases](https://github.com/yourusername/ReaderSpeeder/releases) page.
-2. Download the latest package for Windows.
-3. Run the downloaded executable to start the application.
+2. Download the latest release `.zip` package.
+3. Extract the downloaded package.
+4. Run `readerspeeder.exe` to start the application.
 
-### From Source
+### From Source (Mac/Linux/Windows)
 
 1. Clone the repository or download the source code.
 2. Install the required dependencies using `pip`:
 
     ```sh
     pip install -r requirements.txt
+    ```
+
+3. Run the `readerspeeder.py` script:
+
+    ```sh
+    python readerspeeder.py
     ```
 
 ## Usage
@@ -58,6 +65,33 @@ An offline speed reader application with local TTS and a comfortable UI.
     ```
 
 2. Use the graphical interface to load a text file, adjust the WPM setting, and start speed reading.
+
+### Main Window Settings
+
+- **WPM (Words Per Minute)**: Adjust the speed at which words are displayed.
+- **Night Mode**: Toggle night mode for comfortable reading in low light.
+- **Window Opacity**: Adjust the transparency of the application window.
+- **TTS Engine**: Select the Text-to-Speech engine (sapi5, nsss, espeak).
+- **Load Settings**: Load previously saved user settings.
+- **Save Settings**: Save the current settings for future use.
+
+### Loading Text
+
+- **From File**: Click the "Load File" button to load a text file (UTF-8 encoded).
+- **Paste Text**: Paste text directly into the text box provided.
+
+### Starting Speed Reading
+
+1. After loading or pasting text, click the "Speed Read" button to start the speed reading session.
+
+### Speed Reader Window Controls
+
+- **Play/Pause**: Start or pause the speed reading session.
+- **Stop**: Stop the session and return to the main window.
+- **Progress Bar**: Shows the current position in the text. You can click on the progress bar to skip to different parts of the text.
+- **Skip Forward/Backward**: Skip forward or backward by a few words.
+- **Highlighting**: The middle character of each word is highlighted to help guide your focus.
+- **Punctuation Delays**: The application introduces natural pauses based on punctuation and new-lines for a more natural reading experience.
 
 ## How It Works
 

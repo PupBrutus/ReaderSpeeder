@@ -38,7 +38,7 @@ jobs:
       run: pyinstaller readerspeeder.spec
 
     - name: Zip the build directory
-      run: powershell Compress-Archive -Path dist/ReaderSpeeder/* -DestinationPath dist/ReaderSpeeder.zip
+      run: powershell Compress-Archive -Path dist/ReaderSpeeder -DestinationPath dist/ReaderSpeeder.zip
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3

@@ -29,7 +29,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False,  # Set console to False to hide the console window
 )
 coll = COLLECT(
     exe,
