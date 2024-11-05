@@ -6,7 +6,7 @@ a = Analysis(
     ['readerspeeder.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('default.txt', '.')],  # Include default.txt
     hiddenimports=['pyttsx3', 'simpleaudio'],
     hookspath=[],
     runtime_hooks=[],

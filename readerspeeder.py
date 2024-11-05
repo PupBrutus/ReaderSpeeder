@@ -75,8 +75,10 @@ class SpeedReader:
         
         self.temp_dir = self.resource_path("")  # Use application directory for temp files
         
-        # Automatically load default.txt for debugging purposes
-        self.load_file("default.txt", show_confirmation=False)
+        # Automatically load default.txt for debugging purposes if it exists
+        if os.path.exists("default.txt"):
+            self.load_file("default.txt", show_confirmation=False)
+        
         self.reading_window.protocol("WM_DELETE_WINDOW", self.on_closing_reading_window)  # Handle reading window close event
         self.next_chunk_ready_event = threading.Event()  # Add event to signal next chunk is ready
         self.processed_chunks = set()  # Add a set to keep track of processed chunks
