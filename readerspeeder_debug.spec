@@ -14,8 +14,7 @@ a = Analysis(
         'numpy',
         'psutil',
         'setuptools',
-        'wheel',
-        'metadata'
+        'wheel'
     ],  # Ensure all hidden imports are listed
     hookspath=[],
     runtime_hooks=[],
