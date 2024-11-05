@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(
-    ['main.py'],
+    ['readerspeeder.py'],
     pathex=[],
     binaries=[],
     datas=[],

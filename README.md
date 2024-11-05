@@ -51,10 +51,10 @@ An offline speed reader application with local TTS and a comfortable UI.
 
 ### From Source
 
-1. Run the `main.py` script:
+1. Run the `readerspeeder.py` script:
 
     ```sh
-    python main.py
+    python readerspeeder.py
     ```
 
 2. Use the graphical interface to load a text file, adjust the WPM setting, and start speed reading.

@@ -37,7 +37,7 @@ jobs:
     - name: Build executable
       run: pyinstaller pyinstaller.spec
 
-    - name: Zip dist/main folder
+    - name: Zip dist/readerspeeder folder
       run: powershell Compress-Archive -Path dist/ReaderSpeeder -DestinationPath dist/ReaderSpeeder.zip
 
     - name: Upload artifact
