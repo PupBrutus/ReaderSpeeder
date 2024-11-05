@@ -62,7 +62,7 @@ class SpeedReader:
         self.tts_audio_files = []  # Remove the list to hold TTS audio file paths
         
         # Automatically load default.txt for debugging purposes
-        self.load_file("default.txt", show_confirmation=False)
+        #self.load_file("default.txt", show_confirmation=False)
         self.reading_window.protocol("WM_DELETE_WINDOW", self.on_closing_reading_window)  # Handle reading window close event
         
     def setup_ui(self):
