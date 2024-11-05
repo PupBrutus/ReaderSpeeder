@@ -76,7 +76,7 @@ class SpeedReader:
         self.temp_dir = self.resource_path("")  # Use application directory for temp files
         
         # Automatically load default.txt for debugging purposes
-        #self.load_file("default.txt", show_confirmation=False)
+        self.load_file("default.txt", show_confirmation=False)
         self.reading_window.protocol("WM_DELETE_WINDOW", self.on_closing_reading_window)  # Handle reading window close event
         self.next_chunk_ready_event = threading.Event()  # Add event to signal next chunk is ready
         self.processed_chunks = set()  # Add a set to keep track of processed chunks
@@ -246,43 +246,36 @@ class SpeedReader:
         self.progress.set(0)
         
         logging.info("Starting speed reading with %d chunks.", len(self.chunks))
-        self.preprocess_chunks()  # Preprocess all chunks before starting
+        
+        self.next_chunk_ready_event.clear()  # Ensure the event is cleared before starting
         
         self.reading_thread = threading.Thread(target=self.speed_reading)
         self.reading_thread.start()
-        self.next_chunk_thread = threading.Thread(target=self.preprocess_next_chunk)  # Start the next chunk preparation thread
-        self.next_chunk_thread.start()
 
-    def preprocess_chunks(self):
-        self.preprocessed_chunks = []
-        for chunk in self.chunks:
-            if chunk.strip():
-                logging.info("Preprocessing chunk: %s", chunk)
-                self.display_first_word_of_chunk(chunk)
-                self.preprocessed_chunks.append(chunk)
-        logging.info("Preprocessing complete. Total chunks: %d", len(self.preprocessed_chunks))
-        
     def preprocess_next_chunk(self):
-        while not self.is_stopped:
-            next_chunk_index = self.current_chunk_index + 1
-            if next_chunk_index < len(self.chunks) and next_chunk_index not in self.processed_chunks:
-                if not self.next_chunk_ready_event.is_set():  # Check if the event is cleared before processing the next chunk
-                    next_chunk = self.chunks[next_chunk_index]
-                    if next_chunk.strip():
-                        logging.info("Preparing next chunk: %s", next_chunk)
-                        self.display_first_word_of_chunk(next_chunk)
-                        self.preprocessed_chunks.append(next_chunk)
-                        self.processed_chunks.add(next_chunk_index)  # Mark this chunk as processed
-                        self.first_chunk_prepared = True
-                        self.next_chunk_ready_event.set()  # Signal that the next chunk is ready
-            time.sleep(0.1)  # Sleep briefly to avoid busy-waiting
-        
+        logging.info("Preprocessing next chunk.")
+        next_chunk_index = self.current_chunk_index
+        if next_chunk_index < len(self.chunks) and next_chunk_index not in self.processed_chunks:
+            if not self.next_chunk_ready_event.is_set():  # Check if the event is cleared before processing the next chunk
+                next_chunk = self.chunks[next_chunk_index]
+                if next_chunk.strip():
+                    logging.info("Preparing next chunk: %s", next_chunk)
+                    self.display_first_word_of_chunk(next_chunk)
+                    self.preprocessed_chunks.append(next_chunk)
+                    self.processed_chunks.add(next_chunk_index)  # Mark this chunk as processed
+                    self.first_chunk_prepared = True
+                    self.next_chunk_ready_event.set()  # Signal that the next chunk is ready
+
     def speed_reading(self):
-        while self.current_chunk_index < len(self.preprocessed_chunks) and not self.is_stopped:
+        while self.current_chunk_index < len(self.chunks) and not self.is_stopped:
             if self.shutdown_event.is_set():  # Check for shutdown event
                 logging.info("Shutdown event set. Exiting speed reading loop.")
                 break
             if not self.is_paused:
+                if not self.next_chunk_ready_event.is_set():
+                    self.preprocess_next_chunk()  # Prepare the next chunk
+                    self.next_chunk_ready_event.wait()  # Wait for the next chunk to be ready
+                
                 self.current_chunk = self.preprocessed_chunks[self.current_chunk_index]
                 
                 chunk = self.current_chunk
@@ -320,7 +313,6 @@ class SpeedReader:
                 self.current_chunk_index += 1
                 self.current_chunk = None  # Reset the current chunk
                 self.next_chunk_ready_event.clear()  # Clear the event before waiting for the next chunk
-                self.next_chunk_ready_event.wait()  # Wait for the next chunk to be ready
             else:
                 time.sleep(0.1)
         
