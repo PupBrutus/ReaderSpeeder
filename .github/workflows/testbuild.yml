@@ -1,9 +1,9 @@
-name: Build and Release
+name: TestBuild
 
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'TestBuild'
 
 permissions:
   contents: write
