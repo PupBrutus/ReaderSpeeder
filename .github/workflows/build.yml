@@ -38,7 +38,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: executable
-        path: dist/main.exe
+        path: dist/main/main.exe
 
   release:
     needs: build
