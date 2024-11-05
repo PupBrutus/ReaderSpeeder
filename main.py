@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
-import pyttsx3 # type: ignore
+import pyttsx3
 import threading
 import time
 import os
-import simpleaudio as sa # type: ignore
+import simpleaudio as sa
 import logging  # Add logging import
 import re  # Add regex import
 import json  # Add JSON import
